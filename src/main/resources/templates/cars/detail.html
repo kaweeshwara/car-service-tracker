@@ -2,83 +2,102 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="${car.displayName} + ' — Car Service Tracker'"></title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
 <nav>
-    <a class="brand" href="/cars">&#128663; Car Service Tracker</a>
+    <a class="brand" href="/cars">&#128663; Car Service Tracker <span>v1</span></a>
     <a href="/cars">My Cars</a>
 </nav>
 <div class="container">
     <div class="breadcrumb">
-        <a href="/cars">Cars</a> <span>/</span>
+        <a href="/cars">Cars</a>
+        <span class="sep">&#8250;</span>
         <span th:text="${car.displayName}"></span>
     </div>
 
-    <div class="page-header">
-        <h1 th:text="${car.displayName}"></h1>
-        <a th:href="@{/records/new(carId=${car.id})}" class="btn btn-primary">+ Add Service Record</a>
-    </div>
-
-    <div class="card" style="margin-bottom:1.5rem;">
-        <div class="meta-grid">
-            <div class="meta-item">
-                <label>License Plate</label>
-                <div class="value" th:text="${car.licensePlate}"></div>
-            </div>
-            <div class="meta-item">
-                <label>Owner</label>
-                <div class="value" th:text="${car.ownerName}"></div>
-            </div>
-            <div class="meta-item">
-                <label>Year</label>
-                <div class="value" th:text="${car.year}"></div>
-            </div>
+    <!-- Car hero -->
+    <div class="car-card">
+        <div>
+            <div class="car-title" th:text="${car.displayName}"></div>
+            <div class="car-sub" th:text="'Owner: ' + ${car.ownerName}"></div>
         </div>
-    </div>
-
-    <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:1rem;">Service Records</h2>
-
-    <div th:if="${records.isEmpty()}" class="card empty">
-        <p>No service records yet.</p>
-        <a th:href="@{/records/new(carId=${car.id})}" class="btn btn-primary">+ Add First Record</a>
-    </div>
-
-    <div th:each="rec : ${records}" class="card">
-        <div class="card-header">
-            <div style="display:flex;align-items:center;gap:0.75rem;">
-                <span class="badge badge-blue" th:text="${rec.serviceType}"></span>
-                <span th:text="${#temporals.format(rec.serviceDate,'MMM dd, yyyy')}"></span>
-            </div>
-            <div style="display:flex;gap:0.5rem;">
-                <a th:href="@{/records/{id}(id=${rec.id})}" class="btn btn-outline btn-sm">View</a>
-                <form th:action="@{/records/{id}/delete(id=${rec.id})}" method="post"
-                      onsubmit="return confirm('Delete this service record?')">
-                    <button class="btn btn-danger btn-sm">Delete</button>
+        <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+            <div class="car-plate" th:text="${car.licensePlate}"></div>
+            <div style="display:flex;gap:.6rem;">
+                <a th:href="@{/cars/{id}/edit(id=${car.id})}" class="btn btn-outline btn-sm"
+                   style="border-color:rgba(255,255,255,.3);color:#e2e8f0;">Edit Car</a>
+                <form th:action="@{/cars/{id}/delete(id=${car.id})}" method="post"
+                      onsubmit="return confirm('Delete this car and all its records?')">
+                    <button class="btn btn-sm"
+                            style="background:rgba(220,38,38,.25);color:#fca5a5;border:1px solid rgba(220,38,38,.4);">
+                        Delete
+                    </button>
                 </form>
             </div>
         </div>
+    </div>
 
-        <p th:text="${rec.description}" style="color:#555;font-size:0.9rem;margin-bottom:0.75rem;"></p>
+    <!-- Stats strip -->
+    <div class="stats-strip">
+        <div class="stat-card">
+            <div class="stat-label">Total Services</div>
+            <div class="stat-value" th:text="${records.size()}"></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Total Spent</div>
+            <div class="stat-value" th:text="'$' + ${#numbers.formatDecimal(totalCost, 1, 0)}"></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Reviews Left</div>
+            <div class="stat-value" th:text="${reviewCount} + ' / ' + ${records.size()}"></div>
+        </div>
+    </div>
 
-        <div class="meta-grid">
-            <div class="meta-item">
-                <label>Mileage</label>
-                <div class="value" th:text="${#numbers.formatInteger(rec.mileage,1,'COMMA')} + ' mi'"></div>
+    <!-- Service records -->
+    <div class="page-header" style="margin-bottom:1rem;">
+        <div class="section-title" style="flex:1;margin-bottom:0;">Service Records</div>
+        <a th:href="@{/records/new(carId=${car.id})}" class="btn btn-primary btn-sm">&#43; Add Record</a>
+    </div>
+
+    <div th:if="${records.isEmpty()}" class="empty-state">
+        <div class="empty-icon">&#128295;</div>
+        <h3>No service records yet</h3>
+        <p>Log your first service to start tracking maintenance history.</p>
+        <a th:href="@{/records/new(carId=${car.id})}" class="btn btn-primary">&#43; Add First Record</a>
+    </div>
+
+    <div th:each="rec : ${records}" class="record-row">
+        <div class="accent-bar"></div>
+        <div>
+            <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-bottom:.2rem;">
+                <span class="fw-700" th:text="${rec.serviceType}" style="font-size:.95rem;"></span>
+                <span class="badge badge-blue"
+                      th:text="${#temporals.format(rec.serviceDate,'MMM dd, yyyy')}"></span>
+                <span th:if="${rec.hasReview()}" class="stars-sm">&#9733;</span>
             </div>
-            <div class="meta-item">
-                <label>Cost</label>
-                <div class="value" th:text="'$' + ${#numbers.formatDecimal(rec.cost,1,2)}"></div>
+            <div class="rec-desc" th:text="${rec.description}"></div>
+            <div class="rec-meta">
+                <span>&#128200; <strong th:text="${#numbers.formatInteger(rec.mileage,1,'COMMA')} + ' mi'"></strong></span>
+                <span>&#128181; <strong th:text="'$' + ${#numbers.formatDecimal(rec.cost,1,2)}"></strong></span>
+            </div>
+            <div th:if="${rec.hasReview()}" style="margin-top:.6rem;">
+                <span class="stars" style="font-size:.95rem;" th:text="${rec.review.stars}"></span>
+                <span class="text-sm text-muted" th:text="'  ' + ${rec.review.comment}"
+                      style="font-style:italic;"></span>
             </div>
         </div>
-
-        <div th:if="${rec.hasReview()}" class="review-box">
-            <span class="stars" th:text="${rec.review.stars}"></span>
-            <p th:text="${rec.review.comment}" style="font-size:0.9rem;color:#555;"></p>
-        </div>
-        <div th:unless="${rec.hasReview()}" style="margin-top:0.5rem;">
-            <a th:href="@{/records/{id}/review(id=${rec.id})}" class="btn btn-warning btn-sm">&#9733; Leave a Review</a>
+        <div style="display:flex;flex-direction:column;gap:.4rem;align-items:flex-end;">
+            <a th:href="@{/records/{id}(id=${rec.id})}" class="btn btn-outline btn-sm">View</a>
+            <a th:unless="${rec.hasReview()}"
+               th:href="@{/records/{id}/review(id=${rec.id})}"
+               class="btn btn-warning btn-sm">&#9733; Review</a>
+            <form th:action="@{/records/{id}/delete(id=${rec.id})}" method="post"
+                  onsubmit="return confirm('Delete this record?')">
+                <button class="btn btn-ghost btn-sm" style="color:var(--danger);">&#128465;</button>
+            </form>
         </div>
     </div>
 </div>

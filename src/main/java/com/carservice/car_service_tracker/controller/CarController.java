@@ -1,11 +1,14 @@
 package com.carservice.car_service_tracker.controller;
 
 import com.carservice.car_service_tracker.model.Car;
+import com.carservice.car_service_tracker.model.ServiceRecord;
 import com.carservice.car_service_tracker.service.CarService;
 import com.carservice.car_service_tracker.service.ServiceRecordService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Controller
 @RequestMapping("/cars")
@@ -27,8 +30,13 @@ public class CarController {
     @GetMapping("/{id}")
     public String detail(@PathVariable Long id, Model model) {
         Car car = carService.findById(id).orElseThrow(() -> new IllegalArgumentException("Car not found: " + id));
+        List<ServiceRecord> records = serviceRecordService.findByCarId(id);
+        double totalCost = records.stream().mapToDouble(ServiceRecord::getCost).sum();
+        long reviewCount = records.stream().filter(ServiceRecord::hasReview).count();
         model.addAttribute("car", car);
-        model.addAttribute("records", serviceRecordService.findByCarId(id));
+        model.addAttribute("records", records);
+        model.addAttribute("totalCost", totalCost);
+        model.addAttribute("reviewCount", reviewCount);
         return "cars/detail";
     }
 

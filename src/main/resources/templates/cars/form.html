@@ -2,23 +2,25 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Car Form — Car Service Tracker</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
 <nav>
-    <a class="brand" href="/cars">&#128663; Car Service Tracker</a>
+    <a class="brand" href="/cars">&#128663; Car Service Tracker <span>v1</span></a>
     <a href="/cars">My Cars</a>
 </nav>
 <div class="container">
     <div class="breadcrumb">
-        <a href="/cars">Cars</a> <span>/</span>
+        <a href="/cars">Cars</a>
+        <span class="sep">&#8250;</span>
         <span th:text="${car.id != null} ? 'Edit Car' : 'New Car'"></span>
     </div>
 
-    <div class="card">
+    <div class="card form-card">
         <div class="card-header">
-            <h2 th:text="${car.id != null} ? 'Edit Car' : 'Add New Car'"></h2>
+            <h2 th:text="${car.id != null} ? '&#9998; Edit Car' : '&#43; Add New Car'"></h2>
         </div>
 
         <form action="/cars/save" method="post">
@@ -39,7 +41,7 @@
             <div class="form-row">
                 <div class="form-group">
                     <label for="year">Year</label>
-                    <input type="number" id="year" name="year" th:value="${car.year}"
+                    <input type="number" id="year" name="year" th:value="${car.year != 0 ? car.year : ''}"
                            min="1900" max="2100" placeholder="e.g. 2021" required>
                 </div>
                 <div class="form-group">
@@ -55,7 +57,7 @@
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Save Car</button>
+                <button type="submit" class="btn btn-primary">&#10003; Save Car</button>
                 <a href="/cars" class="btn btn-outline">Cancel</a>
             </div>
         </form>

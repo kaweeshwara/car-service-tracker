@@ -2,77 +2,87 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Service Record — Car Service Tracker</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
 <nav>
-    <a class="brand" href="/cars">&#128663; Car Service Tracker</a>
+    <a class="brand" href="/cars">&#128663; Car Service Tracker <span>v1</span></a>
     <a href="/cars">My Cars</a>
 </nav>
 <div class="container">
     <div class="breadcrumb">
-        <a href="/cars">Cars</a> <span>/</span>
-        <a th:href="@{/cars/{id}(id=${car.id})}" th:text="${car.displayName}"></a> <span>/</span>
+        <a href="/cars">Cars</a>
+        <span class="sep">&#8250;</span>
+        <a th:href="@{/cars/{id}(id=${car.id})}" th:text="${car.displayName}"></a>
+        <span class="sep">&#8250;</span>
         <span th:text="${record.serviceType}"></span>
     </div>
 
+    <!-- Record header -->
     <div class="page-header">
-        <h1 th:text="${record.serviceType}"></h1>
-        <div style="display:flex;gap:0.5rem;">
+        <div>
+            <h1 th:text="${record.serviceType}"></h1>
+            <p th:text="${car.displayName} + ' &middot; ' + ${#temporals.format(record.serviceDate,'MMMM dd, yyyy')}"></p>
+        </div>
+        <div class="flex-gap">
             <a th:unless="${record.hasReview()}"
                th:href="@{/records/{id}/review(id=${record.id})}"
                class="btn btn-warning">&#9733; Leave Review</a>
             <a th:if="${record.hasReview()}"
                th:href="@{/records/{id}/review(id=${record.id})}"
-               class="btn btn-outline btn-sm">Edit Review</a>
+               class="btn btn-outline btn-sm">&#9998; Edit Review</a>
             <form th:action="@{/records/{id}/delete(id=${record.id})}" method="post"
                   onsubmit="return confirm('Delete this record?')">
-                <button class="btn btn-danger btn-sm">Delete</button>
+                <button class="btn btn-ghost btn-sm" style="color:var(--danger);">&#128465; Delete</button>
             </form>
         </div>
     </div>
 
-    <div class="card">
-        <div class="meta-grid">
+    <!-- Details card -->
+    <div class="card" style="margin-bottom:1.25rem;">
+        <div class="meta-grid" style="margin-bottom:1.25rem;">
             <div class="meta-item">
-                <label>Car</label>
-                <div class="value" th:text="${car.displayName}"></div>
+                <div class="meta-label">Service Date</div>
+                <div class="meta-value" th:text="${#temporals.format(record.serviceDate,'MMM dd, yyyy')}"></div>
             </div>
             <div class="meta-item">
-                <label>Service Date</label>
-                <div class="value" th:text="${#temporals.format(record.serviceDate,'MMMM dd, yyyy')}"></div>
+                <div class="meta-label">Mileage</div>
+                <div class="meta-value" th:text="${#numbers.formatInteger(record.mileage,1,'COMMA')} + ' mi'"></div>
             </div>
             <div class="meta-item">
-                <label>Mileage</label>
-                <div class="value" th:text="${#numbers.formatInteger(record.mileage,1,'COMMA')} + ' mi'"></div>
-            </div>
-            <div class="meta-item">
-                <label>Cost</label>
-                <div class="value" th:text="'$' + ${#numbers.formatDecimal(record.cost,1,2)}"></div>
+                <div class="meta-label">Cost</div>
+                <div class="meta-value" th:text="'$' + ${#numbers.formatDecimal(record.cost,1,2)}"></div>
             </div>
         </div>
-        <div style="margin-top:0.75rem;">
-            <label style="font-size:0.75rem;text-transform:uppercase;color:#888;display:block;margin-bottom:0.3rem;">Description</label>
-            <p th:text="${record.description}" style="font-size:0.95rem;line-height:1.6;"></p>
+        <hr>
+        <div style="margin-top:1rem;">
+            <div class="meta-label" style="margin-bottom:.4rem;">Description</div>
+            <p th:text="${record.description}" style="line-height:1.7;color:#374151;"></p>
         </div>
     </div>
 
-    <!-- Review section -->
+    <!-- Review card -->
+    <div class="section-title">Review</div>
+
     <div th:if="${record.hasReview()}" class="card">
         <div class="card-header">
-            <h2>Review</h2>
-            <a th:href="@{/records/{id}/review(id=${record.id})}" class="btn btn-outline btn-sm">Edit</a>
+            <h2>Customer Review</h2>
+            <a th:href="@{/records/{id}/review(id=${record.id})}" class="btn btn-outline btn-sm">&#9998; Edit</a>
         </div>
-        <div class="stars" th:text="${record.review.stars}"></div>
-        <p th:text="${record.review.comment}"
-           style="margin-top:0.5rem;font-size:0.95rem;color:#444;line-height:1.6;"></p>
-        <p style="margin-top:0.5rem;font-size:0.8rem;color:#999;"
-           th:text="'Reviewed on ' + ${#temporals.format(record.review.reviewedAt,'MMM dd, yyyy')}"></p>
+        <div class="review-block">
+            <div class="review-stars" th:text="${record.review.stars}"></div>
+            <div class="review-text" th:text="${record.review.comment}"></div>
+            <div class="review-meta"
+                 th:text="'Reviewed on ' + ${#temporals.format(record.review.reviewedAt,'MMMM dd, yyyy')}"></div>
+        </div>
     </div>
 
-    <div th:unless="${record.hasReview()}" class="card empty">
-        <p>No review yet for this service record.</p>
+    <div th:unless="${record.hasReview()}" class="empty-state">
+        <div class="empty-icon">&#9733;</div>
+        <h3>No review yet</h3>
+        <p>Share your experience with this service visit.</p>
         <a th:href="@{/records/{id}/review(id=${record.id})}" class="btn btn-warning">&#9733; Leave a Review</a>
     </div>
 </div>

@@ -2,51 +2,53 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Cars — Car Service Tracker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>My Cars — Car Service Tracker</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
 <nav>
-    <a class="brand" href="/cars">&#128663; Car Service Tracker</a>
+    <a class="brand" href="/cars">&#128663; Car Service Tracker <span>v1</span></a>
     <a href="/cars">My Cars</a>
 </nav>
+
 <div class="container">
     <div class="page-header">
-        <h1>My Cars</h1>
-        <a href="/cars/new" class="btn btn-primary">+ Add Car</a>
+        <div>
+            <h1>My Cars</h1>
+            <p th:if="${!cars.isEmpty()}"
+               th:text="${cars.size()} + ' vehicle' + (${cars.size()} != 1 ? 's' : '') + ' tracked'"></p>
+        </div>
+        <a href="/cars/new" class="btn btn-primary">&#43; Add Car</a>
     </div>
 
-    <div th:if="${cars.isEmpty()}" class="card empty">
-        <p>No cars yet. Add your first car to get started.</p>
-        <a href="/cars/new" class="btn btn-primary">+ Add Car</a>
+    <div th:if="${cars.isEmpty()}" class="empty-state">
+        <div class="empty-icon">&#128663;</div>
+        <h3>No cars yet</h3>
+        <p>Add your first vehicle to start tracking service history.</p>
+        <a href="/cars/new" class="btn btn-primary">&#43; Add Your First Car</a>
     </div>
 
-    <div th:each="car : ${cars}" class="card">
-        <div class="card-header">
-            <h2>
-                <a th:href="@{/cars/{id}(id=${car.id})}"
-                   th:text="${car.displayName}"
-                   style="text-decoration:none;color:inherit;"></a>
-            </h2>
-            <div style="display:flex;gap:0.5rem;">
-                <a th:href="@{/cars/{id}/edit(id=${car.id})}" class="btn btn-outline btn-sm">Edit</a>
-                <form th:action="@{/cars/{id}/delete(id=${car.id})}" method="post"
-                      onsubmit="return confirm('Delete this car and all its records?')">
-                    <button class="btn btn-danger btn-sm">Delete</button>
-                </form>
+    <div th:each="car : ${cars}" class="card hoverable car-list-card">
+        <div class="car-icon">&#128663;</div>
+        <div>
+            <a th:href="@{/cars/{id}(id=${car.id})}"
+               th:text="${car.displayName}"
+               style="text-decoration:none;font-size:1.05rem;font-weight:700;color:var(--text);"></a>
+            <div class="car-meta">
+                <span th:text="${car.licensePlate}"></span>
+                &nbsp;&middot;&nbsp;
+                <span th:text="${car.ownerName}"></span>
             </div>
         </div>
-        <div class="meta-grid">
-            <div class="meta-item">
-                <label>License Plate</label>
-                <div class="value" th:text="${car.licensePlate}"></div>
-            </div>
-            <div class="meta-item">
-                <label>Owner</label>
-                <div class="value" th:text="${car.ownerName}"></div>
-            </div>
+        <div class="car-actions">
+            <a th:href="@{/cars/{id}(id=${car.id})}" class="btn btn-primary btn-sm">View Records</a>
+            <a th:href="@{/cars/{id}/edit(id=${car.id})}" class="btn btn-outline btn-sm">Edit</a>
+            <form th:action="@{/cars/{id}/delete(id=${car.id})}" method="post"
+                  onsubmit="return confirm('Delete this car and all its records?')">
+                <button class="btn btn-ghost btn-sm" style="color:var(--danger);">&#128465;</button>
+            </form>
         </div>
-        <a th:href="@{/cars/{id}(id=${car.id})}" class="btn btn-outline btn-sm">View Service Records &#8594;</a>
     </div>
 </div>
 </body>
