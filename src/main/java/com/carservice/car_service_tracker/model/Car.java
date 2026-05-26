@@ -1,17 +1,23 @@
 package com.carservice.car_service_tracker.model;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "car")
 public class Car {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String make;
     private String model;
+    @Column(name = "car_year")
     private int year;
     private String licensePlate;
     private String ownerName;
 
     public Car() {}
 
-    public Car(Long id, String make, String model, int year, String licensePlate, String ownerName) {
-        this.id = id;
+    public Car(String make, String model, int year, String licensePlate, String ownerName) {
         this.make = make;
         this.model = model;
         this.year = year;

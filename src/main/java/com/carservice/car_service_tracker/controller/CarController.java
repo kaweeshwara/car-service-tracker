@@ -61,6 +61,7 @@ public class CarController {
 
     @PostMapping("/{id}/delete")
     public String delete(@PathVariable Long id) {
+        serviceRecordService.deleteByCarId(id);
         carService.delete(id);
         return "redirect:/cars";
     }

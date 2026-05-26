@@ -1,9 +1,13 @@
 package com.carservice.car_service_tracker.model;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 import java.time.LocalDateTime;
 
+@Embeddable
 public class Review {
-    private int rating;        // 1-5
+    private int rating;
+    @Column(length = 1000)
     private String comment;
     private LocalDateTime reviewedAt;
 

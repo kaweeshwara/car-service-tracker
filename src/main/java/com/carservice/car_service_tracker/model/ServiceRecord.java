@@ -1,16 +1,24 @@
 package com.carservice.car_service_tracker.model;
 
+import jakarta.persistence.*;
 import java.time.LocalDate;
 
+@Entity
+@Table(name = "service_record")
 public class ServiceRecord {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Long carId;
     private String serviceType;
+    @Column(length = 1000)
     private String description;
     private LocalDate serviceDate;
     private int mileage;
     private double cost;
-    private Review review;
+
+    @Embedded
+    private Review review = new Review();
 
     public ServiceRecord() {}
 
@@ -31,5 +39,7 @@ public class ServiceRecord {
     public Review getReview() { return review; }
     public void setReview(Review review) { this.review = review; }
 
-    public boolean hasReview() { return review != null; }
+    public boolean hasReview() {
+        return review != null && review.getRating() > 0;
+    }
 }
