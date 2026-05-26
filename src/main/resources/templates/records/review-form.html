@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Leave a Review — Car Service Tracker</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<nav>
+    <a class="brand" href="/cars">&#128663; Car Service Tracker</a>
+    <a href="/cars">My Cars</a>
+</nav>
+<div class="container">
+    <div class="breadcrumb">
+        <a href="/cars">Cars</a> <span>/</span>
+        <a th:href="@{/cars/{id}(id=${car.id})}" th:text="${car.displayName}"></a> <span>/</span>
+        <a th:href="@{/records/{id}(id=${record.id})}" th:text="${record.serviceType}"></a> <span>/</span>
+        <span>Review</span>
+    </div>
+
+    <div class="card" style="max-width:560px;">
+        <div class="card-header">
+            <h2 th:text="${record.hasReview()} ? 'Edit Review' : 'Leave a Review'"></h2>
+        </div>
+
+        <p style="font-size:0.9rem;color:#666;margin-bottom:1.25rem;">
+            Reviewing: <strong th:text="${record.serviceType}"></strong>
+            on <span th:text="${car.displayName}"></span>
+            &mdash; <span th:text="${#temporals.format(record.serviceDate,'MMM dd, yyyy')}"></span>
+        </p>
+
+        <form th:action="@{/records/{id}/review(id=${record.id})}" method="post">
+            <div class="form-group">
+                <label>Rating</label>
+                <div class="star-rating">
+                    <input type="radio" id="s5" name="rating" value="5"
+                           th:checked="${review.rating == 5}">
+                    <label for="s5" title="5 stars">&#9733;</label>
+
+                    <input type="radio" id="s4" name="rating" value="4"
+                           th:checked="${review.rating == 4}">
+                    <label for="s4" title="4 stars">&#9733;</label>
+
+                    <input type="radio" id="s3" name="rating" value="3"
+                           th:checked="${review.rating == 3}">
+                    <label for="s3" title="3 stars">&#9733;</label>
+
+                    <input type="radio" id="s2" name="rating" value="2"
+                           th:checked="${review.rating == 2}">
+                    <label for="s2" title="2 stars">&#9733;</label>
+
+                    <input type="radio" id="s1" name="rating" value="1"
+                           th:checked="${review.rating == 1}">
+                    <label for="s1" title="1 star">&#9733;</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="comment">Comment</label>
+                <textarea id="comment" name="comment" rows="4"
+                          placeholder="How was the service? Was it worth the cost?"
+                          th:text="${review.comment}" required></textarea>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-success">Submit Review</button>
+                <a th:href="@{/records/{id}(id=${record.id})}" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>
